@@ -735,8 +735,8 @@ lexique_2 = {
     30: ("trente", "tRA_~t"),
     40: ("quarante", "kaRA_~t"),
     50: ("cinquante", "sE_~kA_~t"),
-    60: ("soixante", "A_~t"),
-    70: ("soixante dix", "swasA_~t"),
+    60: ("soixante", "swasA_~t"),
+    70: ("soixante dix", "swasA_~tdis"),
     80: ("quatre vingt", "katR@vE_~"),
     90: ("quatre vingt dix", "katR@vE_~dis"),
     100: ("cent", "sA_~"),
@@ -757,10 +757,10 @@ def add_dix_unit(disaine, unit, graph: bool=False):
 # la régle générale d'une addition entre cardinaux est dizaine+unité
 # ainsi cette fonction ci-dessous va override 11, 12, 13, 14, 15 et 16
 # 10+unit if not unit[s]['_add'] else unit[s]['_add']
-def unit_dix(unit, dix, graph: bool=False):
-    s = "graphie" if graph else "phonologie"
-    m = unit[s]["_add"]['M'] + graph[s]["_add"]["M"]
-    f = unit[s]["_add"]['F'] + graph[s]["_add"]["F"]
+def unit_dix(unit, dix, graphie: bool=False, gender: str='f'):
+    gender = 'F' if 'f' else 'M'
+    s = "graphie" if graphie else "phonologie"
+    return unit[s]["_add"][gender] + dix[s]["_add"][gender]
 
 
 # construction avec 10 pour unit*10
@@ -796,6 +796,7 @@ def int2string(i: int, contraintes: collections.deque, base: dict):
     """
     sortie = list()
     recursion_modulaire(i, contraintes, base, sortie)
+    print(sortie)
     return list(map(lambda x: base.get(x), sortie))
 
 
@@ -843,11 +844,14 @@ def recursion_modulaire(i: int, contraintes: collections.deque, base: dict, stru
     if i in base:
         if struc and struc[-1] in (20, 30, 40, 50, 60, 70) and i == 1:
             struc.append('+')
+        elif i >= pow(10, 6):
+            struc.append(1)
         struc.append(i)
     else:
         (q, r, n, spec) = suivant(i, contraintes)
         tmp = q * n
-        if n >= pow(10, 6):
+        if n >= pow(10, 6) and q == 1:
+
             struc.append(q)
             struc.append(n)
         elif tmp in base:
@@ -864,8 +868,8 @@ def main():
     contraintes = collections.deque(
         [(1000000000, None), (1000000, None), (1000, None), (100, None), (20, ['6', '7', '8', '9']), (10, None)])
     # print(" ".join(list(map(lambda x: x[0], int2string(21, contraintes, lexique_2)))))
-    for i in range(101):
-        print(" ".join(list(map(lambda x: x[1], int2string(i, contraintes, lexique_2)))))
+    # for i in 98000000000:
+    print(" ".join(list(map(lambda x: x[1], int2string(91, contraintes, lexique_2)))))
     # print(" ".join(list(map(lambda x: x[1], int2string(i, contraintes, lexique_2)))), sep='\n')
 
 
